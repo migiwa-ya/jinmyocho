@@ -110,6 +110,13 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
         map.closePopup();
         setSelectedSlug(null);
       });
+      // 現在地取得後に地図中心を即時移動
+      map.on("locationfound", (e) => {
+        map.setView(e.latlng, map.getZoom(), { animate: false });
+      });
+      map.on("locationerror", () => {
+        alert("位置情報を取得できませんでした");
+      });
       // 現在地取得後に地図中心を移動
       updateData();
     })();
@@ -276,14 +283,16 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
       <CheckGpsInterceptor>
         {(intercept) => (
           <button
-            onClick={intercept((pos) => {
+            onClick={intercept((e) => {
               const map = mapRef.current;
-              if (map)
-                map.setView(
-                  [pos.coords.latitude, pos.coords.longitude],
-                  map.getZoom(),
-                  { animate: true }
-                );
+              if (map) {
+                map.locate({
+                  setView: false,
+                  enableHighAccuracy: false,
+                  maximumAge: 300000,
+                  timeout: 10000,
+                });
+              }
             })}
             class="absolute bottom-[25vw] right-4 z-20 bg-blue-600 text-white p-2 rounded-full shadow-md hover:bg-gray-100 transition"
           >

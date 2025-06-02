@@ -2,27 +2,35 @@ import { MouseEvent, useState } from "hono/jsx";
 
 type CheckGpsInterceptorProps = {
   children: (
-    intercept: (
-      onSuccess: (pos: GeolocationPosition) => void
-    ) => (e: MouseEvent) => void
+    intercept: (action: (e: MouseEvent) => void) => (e: MouseEvent) => void
   ) => any;
-  // ) => JSXNode;
 };
 
 const CheckGpsInterceptor = ({ children }: CheckGpsInterceptorProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const intercept = (onSuccess: (pos: GeolocationPosition) => void) => {
-    return (e: MouseEvent) => {
+  /**
+   * Wrap an action to check geolocation permission before executing.
+   * If permission is denied, show modal; otherwise proceed with the action.
+   */
+  const intercept = (action: (e: MouseEvent) => void) => {
+    return async (e: MouseEvent) => {
       e.preventDefault();
-      if (!navigator.geolocation) {
-        setIsModalOpen(true);
+      if (!navigator.permissions) {
+        // permissions API unsupported, proceed and let browser handle consent
+        action(e);
         return;
       }
-      navigator.geolocation.getCurrentPosition(
-        (pos) => onSuccess(pos),
-        () => setIsModalOpen(true)
-      );
+      try {
+        const status = await navigator.permissions.query({ name: 'geolocation' });
+        if (status.state === 'denied') {
+          setIsModalOpen(true);
+          return;
+        }
+      } catch {
+        // ignore query errors
+      }
+      action(e);
     };
   };
 
