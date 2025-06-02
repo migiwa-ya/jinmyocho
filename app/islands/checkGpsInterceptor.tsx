@@ -3,7 +3,7 @@ import { MouseEvent, useState } from "hono/jsx";
 type CheckGpsInterceptorProps = {
   children: (
     intercept: (
-      originalOnClick?: (e: MouseEvent) => void
+      onSuccess: (pos: GeolocationPosition) => void
     ) => (e: MouseEvent) => void
   ) => any;
   // ) => JSXNode;
@@ -12,21 +12,16 @@ type CheckGpsInterceptorProps = {
 const CheckGpsInterceptor = ({ children }: CheckGpsInterceptorProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const intercept = (originalOnClick?: (e: MouseEvent) => void) => {
+  const intercept = (onSuccess: (pos: GeolocationPosition) => void) => {
     return (e: MouseEvent) => {
       e.preventDefault();
       if (!navigator.geolocation) {
         setIsModalOpen(true);
         return;
       }
-
       navigator.geolocation.getCurrentPosition(
-        () => {
-          originalOnClick?.(e);
-        },
-        () => {
-          setIsModalOpen(true);
-        }
+        (pos) => onSuccess(pos),
+        () => setIsModalOpen(true)
       );
     };
   };

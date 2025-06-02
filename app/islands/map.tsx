@@ -111,9 +111,6 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
         setSelectedSlug(null);
       });
       // 現在地取得後に地図中心を移動
-      map.on("locationfound", (e) => {
-        map.setView(e.latlng, map.getZoom(), { animate: true });
-      });
       updateData();
     })();
   }, [lat, lng, zoom]);
@@ -279,7 +276,15 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
       <CheckGpsInterceptor>
         {(intercept) => (
           <button
-            onClick={intercept(() => mapRef.current?.locate({ setView: true }))}
+            onClick={intercept((pos) => {
+              const map = mapRef.current;
+              if (map)
+                map.setView(
+                  [pos.coords.latitude, pos.coords.longitude],
+                  map.getZoom(),
+                  { animate: true }
+                );
+            })}
             class="absolute bottom-[25vw] right-4 z-20 bg-blue-600 text-white p-2 rounded-full shadow-md hover:bg-gray-100 transition"
           >
             <svg
