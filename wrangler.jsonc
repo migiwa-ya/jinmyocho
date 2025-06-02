@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "frontend",
+  "name": "jinmyocho",
   "main": "./dist/index.js",
   "compatibility_date": "2025-05-23",
   "compatibility_flags": [
