@@ -13,31 +13,29 @@ const CheckGpsInterceptor = ({ children }: CheckGpsInterceptorProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const intercept = (originalOnClick?: (e: MouseEvent) => void) => {
-    return async (e: MouseEvent) => {
+    return (e: MouseEvent) => {
       e.preventDefault();
-
-      try {
-        const { state } = await navigator.permissions.query({
-          name: "geolocation",
-        });
-
-        if (state === "denied") {
-          setIsModalOpen(true);
-          return;
-        } else {
-          await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject);
-          });
-        }
-
-        originalOnClick?.(e);
-      } catch (_) {
+      if (!navigator.geolocation) {
         setIsModalOpen(true);
+        return;
       }
+
+      navigator.geolocation.getCurrentPosition(
+        () => {
+          originalOnClick?.(e);
+        },
+        () => {
+          setIsModalOpen(true);
+        }
+      );
     };
   };
 
-  const handleCancel = () => setIsModalOpen(false);
+  const handleCancel = (e: MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsModalOpen(false);
+  };
 
   return (
     <>
