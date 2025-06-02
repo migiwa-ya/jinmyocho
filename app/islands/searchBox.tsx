@@ -109,7 +109,7 @@ const SearchBox: FC = () => {
       {/* モーダルの背景 */}
       {isOverlayOpen && (
         <div
-          className={`fixed inset-0 bg-white z-10
+          className={`fixed inset-0 bg-white z-30
             ${isOverlayVisible ? "opacity-100" : "opacity-0"}
             `}
           onClick={handleCloseModal}
@@ -119,7 +119,7 @@ const SearchBox: FC = () => {
       {/* 検索ボックス */}
       <div
         ref={searchBoxRef}
-        className={`w-full p-2 z-30 bg-white ${
+        className={`w-full p-2 z-40 bg-white ${
           isModalOpen ? "fixed shadow-lg" : ""
         }`}
         style={{
@@ -202,7 +202,7 @@ const SearchBox: FC = () => {
       {isModalOpen && (
         <div
           ref={searchBoxRef}
-          className={`w-full p-4 z-20 pb-20 ${
+          className={`w-full p-4 z-30 pb-20 ${
             isListVisible ? "opacity-100" : "opacity-0"
           }`}
           style={{

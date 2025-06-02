@@ -23,13 +23,14 @@ const CheckGpsInterceptor = ({ children }: CheckGpsInterceptorProps) => {
 
         if (state === "denied") {
           setIsModalOpen(true);
+          return;
         } else {
           await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject);
           });
-
-          originalOnClick?.(e);
         }
+
+        originalOnClick?.(e);
       } catch (_) {
         setIsModalOpen(true);
       }

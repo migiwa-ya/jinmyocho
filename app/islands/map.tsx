@@ -78,7 +78,7 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
 
   useEffect(() => {
     (async () => {
-      const L = (globalThis as any).L as typeof import('leaflet');
+      const L = (globalThis as any).L as typeof import("leaflet");
       const map = L.map("map", { scrollWheelZoom: true }).setView(
         [lat ?? 35.6895, lng ?? 139.6917],
         zoom
@@ -121,7 +121,7 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
   useEffect(() => {
     if (!mapRef.current) return;
     (async () => {
-      const L = (globalThis as any).L as typeof import('leaflet');
+      const L = (globalThis as any).L as typeof import("leaflet");
 
       if (!markersRef.current) return;
       markersRef.current.forEach(({ marker }) =>
@@ -272,8 +272,6 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
 
   return (
     <>
- 
-
       <div
         id="map"
         class="fixed w-full h-[calc(100vh-120px)] overscroll-contain"
@@ -301,7 +299,7 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
       </CheckGpsInterceptor>
 
       {currentZoom > hiddenZoomLevel && (
-        <div class="fixed bottom-0 left-0 w-full bg-white bg-opacity-80">
+        <div class="z-20 fixed bottom-0 left-0 w-full bg-white bg-opacity-80">
           <div class="relative flex justify-center items-center shadow-lg">
             <button
               class="flex items-center gap-2 h-[60px] font-bold text-center text-gray-800"
