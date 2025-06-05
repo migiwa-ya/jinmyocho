@@ -49,13 +49,11 @@ export type CitiesCustomIndexKeys = "addressBigram";
 export type DeitiesRecord = SourceRecord & {
   shrines?: ShrinesRecord[];
   ID: string | number;
-  名称: Index<string>;
+  名称: string;
   名称読み?: string;
 };
 
 export type DeitiesRelation_shrines = Record<string, string[]>;
-
-export type DeitiesCustomIndexKeys = "ngram";
 
 export type SourceTypeMap = {
   shrines: ShrinesRecord;

@@ -61,11 +61,11 @@
           }
         }
       },
-      "customIndex": [
-        "nameBigram",
-        { "geohash": { "indexDepth": 4 } },
-        { "festivalDate": { "indexDepth": 4 } }
-      ]
+      "customIndex": {
+        "nameBigram": { "indexDepth": 1 },
+        "geohash": { "indexDepth": 4 },
+        "festivalDate": { "indexDepth": 4 }
+      }
     },
 
     "cities": {
@@ -83,7 +83,7 @@
           "geohash": { "type": ["string"] }
         }
       },
-      "customIndex": ["addressBigram"]
+      "customIndex": { "addressBigram": { "indexDepth": 1 } }
     },
 
     "deities": {
@@ -105,9 +105,7 @@
           "foreignKey": "祭神.ID",
           "type": "hasMany"
         }
-      },
-      "index": ["名称"],
-      "customIndex": ["ngram"]
+      }
     }
   }
 }
