@@ -51,7 +51,7 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
     const prefix = encodeGeohash(center.lat, center.lng, precision);
 
     const skip = Array.from(fetchedPrefixesRef.current).some(
-      (f) => f.startsWith(prefix) || prefix.startsWith(f)
+      (f) => prefix.startsWith(f)
     );
     if (skip) return;
 

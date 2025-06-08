@@ -13,7 +13,7 @@
     "hono": "^4.7.10",
     "honox": "^0.1.40",
     "marked": "^15.0.12",
-    "staticql": "^0.8.3"
+    "staticql": "^0.9.5"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250214.0",

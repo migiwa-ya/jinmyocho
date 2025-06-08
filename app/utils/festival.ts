@@ -1,6 +1,6 @@
 type FestivalJa = {
-  日付区分: "絶対日付" | "相対日付"; // recurrenceType
-  開催月日?: string; // MM-DD
+  日付区分?: string; // recurrenceType
+  開催月日?: string | null; // MM-DD
   開催月?: number; // 1〜12
   開催月第何週?: number; // 1〜5
   開催月何曜日?: string; // '日'〜'土'
@@ -44,7 +44,7 @@ export function formatDate(date: Date): string {
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, "0"); // 月は 0 始まり
   const dd = String(date.getDate()).padStart(2, "0");
-  return `${yyyy}${mm}${dd}`;
+  return `(${mm}-${dd})`;
 }
 
 export function getCalculatedDateJa(

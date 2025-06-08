@@ -3,6 +3,7 @@ import { loadStaticQL } from "../staticql/client";
 import { encodeGeohash } from "../utils/geohash";
 import { ShrinesRecord } from "../staticql/staticql-types";
 import { parseMarkdown, stripFrontmatter } from "../utils/parse";
+import { formatDate, getCalculatedDateJa } from "../utils/festival";
 
 export default function ShrineDetail({ slug }: { slug: string }) {
   const [shrine, setShrine] = useState<ShrinesRecord | null>(null);
@@ -91,7 +92,10 @@ export default function ShrineDetail({ slug }: { slug: string }) {
                     key={festival.名称}
                     class="bg-gray-100 p-2 rounded text-gray-700"
                   >
-                    {festival.名称}
+                    {festival.名称}{" "}
+                    {getCalculatedDateJa(festival)
+                      .map((date) => formatDate(date))
+                      .join("~")}
                   </li>
                 ))}
               </ul>

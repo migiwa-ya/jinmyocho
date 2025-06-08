@@ -23,7 +23,7 @@ export default createRoute((c) => {
             。正確で透明性の高い情報提供を目指して、今後も継続的に内容の拡充と訂正を行ってまいります。
           </p>
           <p>
-            <strong>多くの方のご利用・ご協力をお待ちしております！</strong>
+            <strong>多くの方のご利用・ご協力をお待ちしております。</strong>
           </p>
 
           <p class="text-right mt-4">
