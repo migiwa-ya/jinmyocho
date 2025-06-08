@@ -2,10 +2,15 @@ import { jsxRenderer } from "hono/jsx-renderer";
 import { Link, Script } from "honox/server";
 import SearchBox from "../islands/searchBox";
 
+const ogImage = "https://jinmyocho.com/web-app-manifest-192x192.png";
+const title = "神名帳 (β版)";
+
 export default jsxRenderer(({ children }, c) => {
   return (
     <html lang="en">
       <head>
+        <title>{title}</title>
+
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link
@@ -21,8 +26,13 @@ export default jsxRenderer(({ children }, c) => {
           sizes="180x180"
           href="/apple-touch-icon.png"
         />
-        <meta name="apple-mobile-web-app-title" content="神名帳" />
+        <meta name="apple-mobile-web-app-title" content={title} />
         <link rel="manifest" href="/site.webmanifest" />
+
+        <meta property="og:title" content={title} />
+        <meta property="og:image" content={ogImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={ogImage} />
 
         <Link href="/app/style.css" rel="stylesheet" />
         <Script src="/app/client.ts" async />
