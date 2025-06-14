@@ -81,7 +81,7 @@ export default function ShrineDetail({ slug }: { slug: string }) {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    GitHub Issue
+                    修正リクエスト（GitHub Issue）
                   </a>
                 </li>
               )}
