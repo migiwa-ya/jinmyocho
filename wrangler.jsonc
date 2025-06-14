@@ -3,15 +3,15 @@
   "name": "jinmyocho",
   "main": "./dist/index.js",
   "compatibility_date": "2025-05-23",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "./dist"
+  },
+  "vars": {
+    "GITHUB_CLIENT_ID": "Ov23liF2eOViRNfSrw3Q",
+    "GITHUB_REDIRECT_URI": "http://localhost:5173/auth",
+    "IMAGE_REPOSITORY_NAME": "test"
   }
-  // "vars": {
-  //   "MY_VAR": "my-variable"
-  // },
   // "kv_namespaces": [
   //   {
   //     "binding": "MY_KV_NAMESPACE",

@@ -4,9 +4,12 @@ import { encodeGeohash } from "../utils/geohash";
 import { ShrinesRecord } from "../staticql/staticql-types";
 import { parseMarkdown, stripFrontmatter } from "../utils/parse";
 import { formatDate, getCalculatedDateJa } from "../utils/festival";
+import { buildShrineIssueUrl } from "../utils/github";
+import { sanitizeHtml } from "../utils/sanitaize";
 
 export default function ShrineDetail({ slug }: { slug: string }) {
   const [shrine, setShrine] = useState<ShrinesRecord | null>(null);
+  const [issueUrl, setIssueUrl] = useState<string | null>();
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -25,7 +28,15 @@ export default function ShrineDetail({ slug }: { slug: string }) {
       setShrine(result ?? null);
 
       if (result) {
-        setContent(parseMarkdown(stripFrontmatter(result.raw)));
+        setContent(sanitizeHtml(parseMarkdown(stripFrontmatter(result.raw))));
+
+        setIssueUrl(
+          buildShrineIssueUrl(result, {
+            owner: "migiwa-ya",
+            repo: "dataset-shrines",
+            assignees: ["reviewer"],
+          })
+        );
       } else {
         setContent("");
       }
@@ -50,6 +61,31 @@ export default function ShrineDetail({ slug }: { slug: string }) {
             {shrine.別名 && (
               <p class="mt-3 italic text-gray-500">別名: {shrine.別名}</p>
             )}
+
+            <ul class="text-right">
+              <li>
+                <a
+                  class="inline-block mt-2 text-blue-600 hover:text-blue-800 underline"
+                  href={`https://github.com/migiwa-ya/dataset-shrines/blob/main/sources/${shrine.ID}.md`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  GitHub
+                </a>
+              </li>
+              {issueUrl && (
+                <li>
+                  <a
+                    class="inline-block mt-2 text-blue-600 hover:text-blue-800 underline"
+                    href={issueUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    GitHub Issue
+                  </a>
+                </li>
+              )}
+            </ul>
           </header>
 
           <section class="mb-8 space-y-3">

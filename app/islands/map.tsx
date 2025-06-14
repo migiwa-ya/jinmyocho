@@ -6,6 +6,7 @@ import {
   ShrinesRecord,
 } from "../staticql/staticql-types";
 import CheckGpsInterceptor from "./checkGpsInterceptor";
+import { sanitizeHtml } from "../utils/sanitaize";
 
 export interface MapProps {
   lat?: number;
@@ -50,8 +51,8 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
     const center = map.getCenter();
     const prefix = encodeGeohash(center.lat, center.lng, precision);
 
-    const skip = Array.from(fetchedPrefixesRef.current).some(
-      (f) => prefix.startsWith(f)
+    const skip = Array.from(fetchedPrefixesRef.current).some((f) =>
+      prefix.startsWith(f)
     );
     if (skip) return;
 
@@ -137,13 +138,13 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
         const sLng = Number(s.経度);
         if (!isNaN(sLat) && !isNaN(sLng)) {
           const m = L.marker([sLat, sLng]).addTo(mapRef.current);
-          const popupContent = `<div>
+          const popupContent = sanitizeHtml(`<div>
             <strong>${s.名称}</strong><br/>
             ${s.住所 || ""}<br/>
             <a href="/s/${
               s.slug
             }" class="text-blue-600 underline text-lg">詳細を見る</a>
-          </div>`;
+          </div>`);
           m.bindPopup(popupContent, { closeButton: false, autoClose: false });
           m.on("click", () => {
             const map = mapRef.current;
@@ -300,7 +301,7 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
-              className="size-6"
+              class="size-6"
             >
               <path
                 fillRule="evenodd"
@@ -323,7 +324,7 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
                 fill="currentColor"
-                className="size-4"
+                class="size-4"
               >
                 <path d="M3 4.75a1 1 0 1 0 0-2 1 1 0 0 0 0 2ZM6.25 3a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7ZM6.25 7.25a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7ZM6.25 11.5a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5h-7ZM4 12.25a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM3 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" />
               </svg>
@@ -337,7 +338,7 @@ export default function Map({ lat, lng, zoom = 15 }: MapProps) {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
-                className="size-5"
+                class="size-5"
               >
                 <path
                   fillRule="evenodd"

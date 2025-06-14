@@ -52,7 +52,6 @@ const SearchBox: FC = () => {
       const { state } = await navigator.permissions.query({
         name: "geolocation",
       });
-      console.log(state);
     };
     check();
 
@@ -105,11 +104,11 @@ const SearchBox: FC = () => {
   }, [keyword, suggest]);
 
   return (
-    <div className="flex justify-center">
+    <div class="flex justify-center">
       {/* モーダルの背景 */}
       {isOverlayOpen && (
         <div
-          className={`fixed inset-0 bg-white z-30
+          class={`fixed inset-0 bg-white z-30
             ${isOverlayVisible ? "opacity-100" : "opacity-0"}
             `}
           onClick={handleCloseModal}
@@ -119,7 +118,7 @@ const SearchBox: FC = () => {
       {/* 検索ボックス */}
       <div
         ref={searchBoxRef}
-        className={`w-full p-2 z-40 bg-white ${
+        class={`w-full p-2 z-40 bg-white ${
           isModalOpen ? "fixed shadow-lg" : ""
         }`}
         style={{
@@ -128,10 +127,10 @@ const SearchBox: FC = () => {
             : "translateY(0)",
         }}
       >
-        <div className="flex justify-between items-center gap-2">
+        <div class="flex justify-between items-center gap-2">
           <a
             href="/"
-            className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600"
+            class="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -139,7 +138,7 @@ const SearchBox: FC = () => {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="size-6"
+              class="size-6"
             >
               <path
                 strokeLinecap="round"
@@ -172,29 +171,29 @@ const SearchBox: FC = () => {
               onKeyDown={handleEnter(() => handleOpenModal())}
               type="text"
               placeholder="神社名、市区町村名"
-              className="w-full p-3 pl-9 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full p-3 pl-9 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* <button
-            onClick={handleOpenModal}
-            className=" bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600"
+          <a
+            href="/auth/start"
+            class=" bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              strokeWidth={1.5}
+              stroke-width="1.5"
               stroke="currentColor"
-              className="size-6"
+              class="size-6"
             >
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
               />
             </svg>
-          </button> */}
+          </a>
         </div>
       </div>
 
@@ -202,7 +201,7 @@ const SearchBox: FC = () => {
       {isModalOpen && (
         <div
           ref={searchBoxRef}
-          className={`w-full p-4 z-30 pb-20 ${
+          class={`w-full p-4 z-30 pb-20 ${
             isListVisible ? "opacity-100" : "opacity-0"
           }`}
           style={{
@@ -211,21 +210,21 @@ const SearchBox: FC = () => {
               : "translateY(0)",
           }}
         >
-          <ul className="space-y-2">
+          <ul class="space-y-2">
             <li>
               <a
                 href={`/s?sn=${keyword}`}
-                className="p-4 bg-gray-100 rounded-md hover:bg-gray-200 flex items-center justify-between"
+                class="p-4 bg-gray-100 rounded-md hover:bg-gray-200 flex items-center justify-between"
               >
                 <span>神社名検索: {keyword}</span>⛩
               </a>
             </li>
             {loadingSuggest ? (
-              <li className="text-center text-gray-500">Loading...</li>
+              <li class="text-center text-gray-500">Loading...</li>
             ) : (
               <>
                 {suggestResult.length === 0 ? (
-                  <li className="text-center text-gray-500">
+                  <li class="text-center text-gray-500">
                     該当する市区町村は見つかりませんでした
                   </li>
                 ) : (
@@ -234,7 +233,7 @@ const SearchBox: FC = () => {
                       <li>
                         <a
                           href={item.url}
-                          className="p-4 bg-gray-100 rounded-md hover:bg-gray-200 flex items-center justify-between"
+                          class="p-4 bg-gray-100 rounded-md hover:bg-gray-200 flex items-center justify-between"
                         >
                           <span>{item.name}</span>
                           🗺
@@ -244,7 +243,7 @@ const SearchBox: FC = () => {
                   ))
                 )}
                 {hasMoreSuggest && (
-                  <li className="text-center text-gray-500">
+                  <li class="text-center text-gray-500">
                     検索結果が多いため表示が省略されました
                   </li>
                 )}
@@ -258,7 +257,7 @@ const SearchBox: FC = () => {
       {isModalOpen && (
         <button
           onClick={handleCloseModal}
-          className="fixed bottom-5 right-5 w-10 h-10 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 z-30"
+          class="fixed bottom-5 right-5 w-10 h-10 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 z-30"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -266,7 +265,7 @@ const SearchBox: FC = () => {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="size-6 justify-self-center"
+            class="size-6 justify-self-center"
           >
             <path
               strokeLinecap="round"

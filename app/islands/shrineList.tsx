@@ -46,30 +46,30 @@ export function ShrineList({ name }: { name: string }) {
   }, []);
 
   return (
-    <div className="p-4 space-y-4">
+    <div class="p-4 space-y-4">
       {loading && items.length === 0 ? (
-        <div className="text-center py-8">Loading...</div>
+        <div class="text-center py-8">Loading...</div>
       ) : !loading && items.length === 0 ? (
-        <div className="text-center py-8">Not found</div>
+        <div class="text-center py-8">Not found</div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map((i) => (
               <a
                 key={i.slug}
                 href={`/s/${i.slug}`}
-                className="block p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
+                class="block p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition"
               >
-                <h3 className="text-lg font-semibold mb-2">{i.名称}</h3>
+                <h3 class="text-lg font-semibold mb-2">{i.名称}</h3>
                 {i.住所 && (
-                  <p className="text-sm text-gray-600 mb-1">{i.住所}</p>
+                  <p class="text-sm text-gray-600 mb-1">{i.住所}</p>
                 )}
-                <p className="text-sm text-gray-500">
+                <p class="text-sm text-gray-500">
                   {i.都道府県} {i.区域}
                 </p>
                 {i.祭神 && i.祭神.length > 0 && (
-                  <p className="mt-2 text-sm text-gray-600">
-                    <span className="font-medium">祭神：</span>
+                  <p class="mt-2 text-sm text-gray-600">
+                    <span class="font-medium">祭神：</span>
                     {i.祭神.map((d) => d.名称).join("、")}
                   </p>
                 )}
@@ -77,11 +77,11 @@ export function ShrineList({ name }: { name: string }) {
             ))}
           </div>
           {hasNextPage && (
-            <div className="flex justify-center">
+            <div class="flex justify-center">
               <button
                 onClick={fetchMore}
                 disabled={loading}
-                className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition${
+                class={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition${
                   loading ? " opacity-50 cursor-not-allowed" : ""
                 }`}
               >

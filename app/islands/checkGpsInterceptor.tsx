@@ -22,8 +22,10 @@ const CheckGpsInterceptor = ({ children }: CheckGpsInterceptorProps) => {
         return;
       }
       try {
-        const status = await navigator.permissions.query({ name: 'geolocation' });
-        if (status.state === 'denied') {
+        const status = await navigator.permissions.query({
+          name: "geolocation",
+        });
+        if (status.state === "denied") {
           setIsModalOpen(true);
           return;
         }
@@ -46,24 +48,24 @@ const CheckGpsInterceptor = ({ children }: CheckGpsInterceptorProps) => {
 
       {isModalOpen && (
         <div
-          className="fixed inset-0 flex items-center justify-center z-50"
+          class="fixed inset-0 flex items-center justify-center z-50"
           style={{ height: "70vh" }}
         >
-          <div className="bg-white rounded-lg p-6 shadow-lg w-90">
-            <div className="flex items-center">
+          <div class="bg-white rounded-lg p-6 shadow-lg w-90">
+            <div class="flex items-center">
               位置情報の取得がブロックされています
             </div>
 
-            <div className="flex items-center mt-4">
+            <div class="flex items-center mt-4">
               <div>
-                <p className="text-blue-700 font-semibold mb-2">
+                <p class="text-blue-700 font-semibold mb-2">
                   位置情報の取得を許可してください。
                 </p>
-                <ul className="list-disc list-inside text-blue-600">
+                <ul class="list-disc list-inside text-blue-600">
                   <li>
                     <a
                       href="https://support.google.com/chrome/answer/142065?hl=ja&co=GENIE.Platform%3DAndroid&oco=0"
-                      className="text-blue-500 hover:underline"
+                      class="text-blue-500 hover:underline"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -73,7 +75,7 @@ const CheckGpsInterceptor = ({ children }: CheckGpsInterceptorProps) => {
                   <li>
                     <a
                       href="https://support.apple.com/ja-jp/guide/personal-safety/ips9bf20ad2f/1.0/web/1.0#ips2209db383"
-                      className="text-blue-500 hover:underline"
+                      class="text-blue-500 hover:underline"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -84,10 +86,10 @@ const CheckGpsInterceptor = ({ children }: CheckGpsInterceptorProps) => {
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div class="mt-6 flex justify-end">
               <button
                 onClick={handleCancel}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+                class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
               >
                 閉じる
               </button>
