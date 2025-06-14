@@ -68,21 +68,23 @@ export default function ImageUploader() {
     setResult(null);
 
     try {
-      setResult(`画像をアップロード中です`);
+      setResult(null);
+
+      const formData = new FormData();
+      formData.append("file", selectedFile);
 
       const response = await fetch("/api/images/upload", {
         method: "POST",
-        body: JSON.stringify({
-          selectedFile,
-        }),
+        body: formData,
       });
+
       const result: UploadResult = await response.json();
 
       if ("error" in result) {
         throw new Error(result.error);
       }
 
-      setResult(`画像が正常にアップロードされました！(${result.filename})`);
+      setResult(`画像が正常にアップロードされました！`);
       setResultType("success");
 
       // 成功時にフォームをリセット
@@ -221,7 +223,7 @@ export default function ImageUploader() {
                 {result}
                 {resultType === "success" && (
                   <p class="mt-1 text-xs text-green-600">
-                    <a
+                    後ほど <a
                       class="text-md text-blue-600 underline"
                       href="/dashboard/images"
                     >

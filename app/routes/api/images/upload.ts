@@ -13,7 +13,7 @@ export type UploadResult =
   | { error: string }
   | { ok: boolean; filename: string };
 
-export default createRoute(async (c) => {
+export const POST = createRoute(async (c) => {
   const token = getCookie(c, "gh_token");
   if (!token) {
     const result: UploadResult = { error: "Unauthorized" };

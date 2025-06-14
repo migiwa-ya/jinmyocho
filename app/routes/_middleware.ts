@@ -1,6 +1,5 @@
 import type { MiddlewareHandler } from "hono";
 import { createRoute } from "honox/factory";
-import { sanitizeHtml } from "../utils/sanitaize";
 
 export const injectPublicEnv: MiddlewareHandler = async (c, next) => {
   await next();
@@ -16,7 +15,7 @@ export const injectPublicEnv: MiddlewareHandler = async (c, next) => {
   };
 
   const scriptTag = `<script>
-      window.__ENV__ = ${sanitizeHtml(JSON.stringify(envs))};
+      window.__ENV__ = ${JSON.stringify(envs)};
     </script>`;
 
   c.res = new Response(html.replace("<head>", "<head>" + scriptTag), {
