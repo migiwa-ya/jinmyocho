@@ -10,7 +10,11 @@ const authMiddleware = createMiddleware(async (c, next) => {
 
   try {
     const res = await fetch("https://api.github.com/user", {
-      headers: { Authorization: `token ${token}`, Accept: "application/json" },
+      headers: {
+        Authorization: `token ${token}`,
+        "User-Agent": "jinja-image-app",
+        Accept: "application/vnd.github.v3+json",
+      },
     });
     if (!res.ok) {
       setCookie(c, "gh_token", "", { path: "/", maxAge: 0 });
