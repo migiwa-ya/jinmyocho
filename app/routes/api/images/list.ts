@@ -4,10 +4,13 @@ import {
   getUsername,
   checkRepositoryExists,
   createRepository,
-  listImageCDNUrls,
+  listImageResources,
+  type ImageResource,
 } from "../../../utils/github";
 
-export type ListResult = { error: string } | { ok: boolean; images: string[] };
+export type ListResult =
+  | { error: string }
+  | { ok: boolean; images: ImageResource[] };
 
 export default createRoute(async (c) => {
   const token = getCookie(c, "gh_token");
@@ -24,7 +27,7 @@ export default createRoute(async (c) => {
     await new Promise((r) => setTimeout(r, 2000));
   }
 
-  const images = await listImageCDNUrls(
+  const images = await listImageResources(
     token,
     username,
     c.env.IMAGE_REPOSITORY_NAME

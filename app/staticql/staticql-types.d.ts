@@ -31,6 +31,7 @@ export type ShrinesRecord = SourceRecord & {
     旧暦?: boolean;
     備考?: string | number | null;
   }[];
+  画像?: string[];
 };
 
 export type ShrinesCustomIndexKeys = "nameBigram" | "geohash" | "festivalDate";

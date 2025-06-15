@@ -1,7 +1,12 @@
 import { createRoute } from "honox/factory";
-import { setCookie } from "hono/cookie";
+import { getCookie, setCookie } from "hono/cookie";
 
 export default createRoute((c) => {
+  const token = getCookie(c, "gh_token");
+  if (token) {
+    return c.redirect("/dashboard");
+  }
+
   const state = crypto.randomUUID();
   setCookie(c, "oauth_state", state, {
     httpOnly: true,

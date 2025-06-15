@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "hono/jsx";
 import { UploadResult } from "../../routes/api/images/upload";
+import { compressImageToJpeg } from "../../utils/file";
+import { CCLicenseSelector } from "./CCLicenseSelector";
 
 export default function ImageUploader() {
   const [selectedFile, setSelectedFile] = useState<Blob | null>();
+
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -10,6 +13,8 @@ export default function ImageUploader() {
   const [progress, setProgress] = useState("");
   const [env, setEnv] = useState<Window["__ENV__"]>();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLInputElement>(null);
+  const licenseRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.__ENV__) {
@@ -38,9 +43,9 @@ export default function ImageUploader() {
       return;
     }
 
-    // ファイルサイズチェック（25MB制限）
-    if (file.size > 25 * 1024 * 1024) {
-      setResult("ファイルサイズが25MBを超えています");
+    // ファイルサイズチェック（10MB制限）
+    if (file.size > 10 * 1024 * 1024) {
+      setResult("ファイルサイズが10MBを超えています");
       setResultType("error");
       return;
     }
@@ -70,8 +75,12 @@ export default function ImageUploader() {
     try {
       setResult(null);
 
+      const pressed = await compressImageToJpeg(selectedFile);
+
       const formData = new FormData();
-      formData.append("file", selectedFile);
+      formData.append("file", pressed);
+      formData.append("description", descriptionRef.current?.value ?? "");
+      formData.append("license", licenseRef.current?.value ?? "");
 
       const response = await fetch("/api/images/upload", {
         method: "POST",
@@ -122,7 +131,7 @@ export default function ImageUploader() {
   };
 
   return (
-    <div class="max-w-lg mx-auto p-6 bg-white rounded-lg  border border-gray-200">
+    <div class="max-w-lg mx-auto p-6 mt-4 bg-white">
       <div class="mb-6">
         <h2 class="text-2xl font-bold text-gray-800 mb-2">
           📸 GitHub 画像アップロード
@@ -131,6 +140,27 @@ export default function ImageUploader() {
       </div>
 
       <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            説明 <span class="text-red-500">*</span>
+          </label>
+
+          <input
+            ref={descriptionRef}
+            name="description"
+            type="text"
+            class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            ライセンス <span class="text-red-500">*</span>
+          </label>
+
+          <CCLicenseSelector selectRef={licenseRef} />
+        </div>
+
         {/* ファイル選択エリア */}
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -181,7 +211,7 @@ export default function ImageUploader() {
               ファイルを選択
             </button>
           </div>
-          <p class="text-xs text-gray-500 mt-1">対応形式: JPG（最大25MB）</p>
+          <p class="text-xs text-gray-500 mt-1">対応形式: JPG（最大10MB）</p>
         </div>
 
         {/* アップロードボタン */}
@@ -223,7 +253,8 @@ export default function ImageUploader() {
                 {result}
                 {resultType === "success" && (
                   <p class="mt-1 text-xs text-green-600">
-                    後ほど <a
+                    後ほど{" "}
+                    <a
                       class="text-md text-blue-600 underline"
                       href="/dashboard/images"
                     >

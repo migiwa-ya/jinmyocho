@@ -59,17 +59,18 @@ export default createRoute((c) => {
           </li>
         </ol>
 
-        <h2 class="mt-10 text-2xl font-semibold">参加方法（準備中）</h2>
+        <h2 class="mt-10 text-2xl font-semibold">参加方法（現行）</h2>
         <ul class="mt-4 space-y-2">
           <li class="flex flex-col sm:flex-row sm:items-start">
             <span class="font-medium shrink-0">
               GitHub Issue / PR による誤記報告
             </span>
-            <span>2025 Q3 公開予定</span>
+            <span>各神社ページの「修正リクエスト（GitHub Issue）」から報告頂けます。※報告のみのため、反映は運営側で随時対応となります</span>
           </li>
           <li class="flex flex-col sm:flex-row sm:items-start">
             <span class="font-medium shrink-0">画像投稿</span>
-            <span>2025 Q3 公開予定</span>
+            <span>ヘッダーのアカウントボタンを押下してから指示に従い、 GitHub アカウントの作成と、画像保存先の操作を可能にする処理（認可処理）を行ってください。</span>
+            <span>そのあとマイページから画像が登録できるので、登録後、画像一覧からURLを取得して、上記「修正リクエスト」の「その他メモ」に追記してください。※反映は運営側で随時対応となります</span>
           </li>
         </ul>
 

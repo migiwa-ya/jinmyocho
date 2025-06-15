@@ -10,7 +10,7 @@
   "vars": {
     "GITHUB_CLIENT_ID": "Ov23liF2eOViRNfSrw3Q",
     "GITHUB_REDIRECT_URI": "http://localhost:5173/auth",
-    "IMAGE_REPOSITORY_NAME": "test"
+    "IMAGE_REPOSITORY_NAME": "jinmyocho-data"
   }
   // "kv_namespaces": [
   //   {
