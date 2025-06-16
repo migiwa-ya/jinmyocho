@@ -152,30 +152,26 @@ export default function ShrineDetail({ slug }: { slug: string }) {
               <p class="mt-3 italic text-gray-500">別名: {shrine.別名}</p>
             )}
 
-            <ul class="flex gap-4 text-right text-sm">
-              <li>
+            <div class="flex gap-4 text-sm">
+              <a
+                class="inline-block mt-2 text-blue-600 hover:text-blue-800 underline"
+                href={`https://github.com/migiwa-ya/dataset-shrines/blob/main/sources/${shrine.ID}.md`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub
+              </a>
+              {issueUrl && (
                 <a
                   class="inline-block mt-2 text-blue-600 hover:text-blue-800 underline"
-                  href={`https://github.com/migiwa-ya/dataset-shrines/blob/main/sources/${shrine.ID}.md`}
+                  href={issueUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  GitHub
+                  修正リクエスト（GitHub Issue）
                 </a>
-              </li>
-              {issueUrl && (
-                <li>
-                  <a
-                    class="inline-block mt-2 text-blue-600 hover:text-blue-800 underline"
-                    href={issueUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    修正リクエスト（GitHub Issue）
-                  </a>
-                </li>
               )}
-            </ul>
+            </div>
           </header>
 
           <section class="mb-8 space-y-3">
@@ -184,13 +180,23 @@ export default function ShrineDetail({ slug }: { slug: string }) {
               {shrine.郵便番号 && <span>〒{shrine.郵便番号}</span>}{" "}
               {shrine.住所}
             </p>
-            <a
-              href={`/s?g=${encodeGeohash(shrine.緯度, shrine.経度, 6)}`}
-              rel="noopener noreferrer"
-              class="inline-block mt-2 text-blue-600 hover:text-blue-800 underline"
-            >
-              周辺を検索する
-            </a>
+
+            <div class="flex gap-4 text-sm">
+              <a
+                href={`/s?g=${encodeGeohash(shrine.緯度, shrine.経度, 6)}`}
+                class="inline-block text-blue-600 hover:text-blue-800 underline"
+              >
+                周辺を検索する
+              </a>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${shrine.緯度},${shrine.経度}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-block text-blue-600 hover:text-blue-800 underline"
+              >
+                Google マップで開く
+              </a>
+            </div>
           </section>
 
           {shrine.祭神 && shrine.祭神.length > 0 && (
