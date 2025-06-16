@@ -7,7 +7,7 @@ const title = "神名帳 (β版)";
 
 export default jsxRenderer(({ children }, c) => {
   return (
-    <html lang="en">
+    <html lang="ja">
       <head>
         <title>{title}</title>
 

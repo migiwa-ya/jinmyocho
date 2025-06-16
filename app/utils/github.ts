@@ -24,6 +24,7 @@ export const createRepository = async (
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github.v3+json",
       "Content-Type": "application/json",
+      "User-Agent": "jinmyocho.com",
     },
     body: JSON.stringify({
       name: repoName,
@@ -48,7 +49,7 @@ export const createRepository = async (
   const userRes = await fetch("https://api.github.com/user", {
     headers: {
       Authorization: `Bearer ${token}`,
-      "User-Agent": "jinja-image-app",
+      "User-Agent": "jinmyocho.com",
       Accept: "application/vnd.github.v3+json",
     },
   });
@@ -70,6 +71,7 @@ export const createRepository = async (
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github.v3+json",
+        "User-Agent": "jinmyocho.com",
       },
     }
   );
@@ -100,6 +102,7 @@ export const createRepository = async (
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/vnd.github.v3+json",
+          "User-Agent": "jinmyocho.com",
         },
       }
     );
@@ -113,6 +116,7 @@ export const createRepository = async (
             Authorization: `Bearer ${token}`,
             Accept: "application/vnd.github.v3+json",
             "Content-Type": "application/json",
+            "User-Agent": "jinmyocho.com",
           },
           body: JSON.stringify({
             ref: `refs/heads/${initialBranch}`,
@@ -140,6 +144,7 @@ export const createRepository = async (
           Authorization: `Bearer ${token}`,
           Accept: "application/vnd.github.v3+json",
           "Content-Type": "application/json",
+          "User-Agent": "jinmyocho.com",
         },
         body: JSON.stringify({
           default_branch: initialBranch,
@@ -163,6 +168,7 @@ export const createRepository = async (
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github.v3+json",
         "Content-Type": "application/json",
+        "User-Agent": "jinmyocho.com",
       },
       body: JSON.stringify({
         message: "Add .nojekyll to disable Jekyll processing",
@@ -191,6 +197,7 @@ export const checkRepositoryExists = async (
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/vnd.github.v3+json",
+          "User-Agent": "jinmyocho.com",
         },
       }
     );
@@ -201,17 +208,34 @@ export const checkRepositoryExists = async (
 };
 
 export const getUsername = async (token: string) => {
+  console.log(
+    "[getUsername] token prefix:",
+    token.slice(0, 8),
+    "...suffix:",
+    token.slice(-8)
+  );
   const response = await fetch("https://api.github.com/user", {
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github.v3+json",
+      "User-Agent": "jinmyocho.com",
     },
   });
-
-  if (!response.ok) throw new Error("GitHubユーザー情報の取得に失敗しました");
-
-  const user: GitHubUser = await response.json();
-
+  console.log("[getUsername] response.status:", response.status);
+  const text = await response.text();
+  console.log("[getUsername] raw body:", text);
+  let user: GitHubUser;
+  try {
+    user = JSON.parse(text);
+  } catch (err) {
+    console.error("[getUsername] JSON parse error:", err);
+    throw new Error(`GitHubユーザー情報の取得に失敗しました (invalid JSON)`);
+  }
+  if (!response.ok) {
+    const msg = (user as any)?.message || `status=${response.status}`;
+    throw new Error(`GitHubユーザー情報の取得に失敗しました: ${msg}`);
+  }
+  console.log("[getUsername] login:", user.login);
   return user.login;
 };
 
@@ -254,6 +278,7 @@ export const uploadFileToRepo = async (
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github.v3+json",
+        "User-Agent": "jinmyocho.com",
       },
     });
     if (getRes.ok) {
@@ -304,6 +329,7 @@ export const uploadFileToRepo = async (
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github.v3+json",
         "Content-Type": "application/json",
+        "User-Agent": "jinmyocho.com",
       },
       body: JSON.stringify(putBody),
     });
@@ -351,6 +377,7 @@ const getGitHubPagesStatus = async (
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "jinmyocho.com",
       },
     }
   );
@@ -401,6 +428,7 @@ export const enableGitHubPages = async (
           Accept: "application/vnd.github+json",
           "Content-Type": "application/json",
           "X-GitHub-Api-Version": "2022-11-28",
+          "User-Agent": "jinmyocho.com",
         },
         body: JSON.stringify({
           source: {
@@ -472,6 +500,7 @@ export async function listImageResources(
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github.v3+json",
+        "User-Agent": "jinmyocho.com",
       },
     });
   } catch (err) {

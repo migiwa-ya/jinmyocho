@@ -12,8 +12,8 @@ const authMiddleware = createMiddleware(async (c, next) => {
     const res = await fetch("https://api.github.com/user", {
       headers: {
         Authorization: `token ${token}`,
-        "User-Agent": "jinja-image-app",
         Accept: "application/vnd.github.v3+json",
+        "User-Agent": "jinmyocho.com",
       },
     });
     if (!res.ok) {
