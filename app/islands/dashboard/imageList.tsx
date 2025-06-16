@@ -1,6 +1,7 @@
 import { useEffect, useState } from "hono/jsx";
 import { ListResult } from "../../routes/api/images/list";
 import { convertCdnUrlToGitHubUrl, ImageResource } from "../../utils/github";
+import { NameResult } from "../../routes/api/users/name";
 
 interface ImageMeta {
   userName: string;
@@ -19,6 +20,8 @@ export default function ImageList() {
   const [metaDataMap, setMetaDataMap] = useState<
     Record<string, ImageMeta | null>
   >({});
+
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
     // images が変わるたびにフェッチ
@@ -68,6 +71,20 @@ export default function ImageList() {
     if (typeof window !== "undefined" && window.__ENV__) {
       setEnv(window.__ENV__);
     }
+
+    (async () => {
+      try {
+        const response = await fetch("/api/users/name");
+        const result = (await response.json()) as NameResult;
+        if ("error" in result) {
+          throw new Error(result.error);
+        }
+
+        setUserName(result.userName);
+      } catch (error) {
+        console.error("データの取得に失敗しました:", error);
+      }
+    })();
   }, []);
 
   if (!env) {
@@ -141,10 +158,26 @@ export default function ImageList() {
       <div
         class={`m-4 p-4 rounded-md border text-gray-600 bg-gray-50 border-gray-200`}
       >
-        <div class="flex items-start space-x-2">
-          <div class="text-xs">
-            ※画像が表示されない場合は少し間を開けてから読み込んでください
-          </div>
+        <div class="flex items-start space-x-2 pl-4">
+          <ul class="text-xs list-disc">
+            <li>
+              画像が表示されない場合は少し間を開けてから読み込んでください
+            </li>
+            <li>
+              <a
+                href={`https://github.com/${userName}/${env.IMAGE_REPOSITORY_NAME}/tree/gh-pages/images`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-block text-blue-600 hover:text-blue-800 underline"
+              >
+                GitHub レポジトリ（画像保存先）
+              </a>
+              からも確認できます
+            </li>
+            <li>
+              画像の削除や、説明文・ライセンスの編集は GitHub から行ってください
+            </li>
+          </ul>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "hono/jsx";
 import { UploadResult } from "../../routes/api/images/upload";
 import { compressImageToJpeg } from "../../utils/file";
 import { CCLicenseSelector } from "./CCLicenseSelector";
+import { NameResult } from "../../routes/api/users/name";
 
 export default function ImageUploader() {
   const [selectedFile, setSelectedFile] = useState<Blob | null>();
@@ -16,10 +17,26 @@ export default function ImageUploader() {
   const descriptionRef = useRef<HTMLInputElement>(null);
   const licenseRef = useRef<HTMLInputElement>(null);
 
+  const [userName, setUserName] = useState("");
+
   useEffect(() => {
     if (typeof window !== "undefined" && window.__ENV__) {
       setEnv(window.__ENV__);
     }
+
+    (async () => {
+      try {
+        const response = await fetch("/api/users/name");
+        const result = (await response.json()) as NameResult;
+        if ("error" in result) {
+          throw new Error(result.error);
+        }
+
+        setUserName(result.userName);
+      } catch (error) {
+        console.error("データの取得に失敗しました:", error);
+      }
+    })();
   }, []);
 
   if (!env) {
@@ -136,7 +153,18 @@ export default function ImageUploader() {
         <h2 class="text-2xl font-bold text-gray-800 mb-2">
           📸 GitHub 画像アップロード
         </h2>
-        <p class="text-gray-600 text-sm">画像をGitHubリポジトリに保存します</p>
+        <p class="text-gray-600 text-sm">
+          画像はあなたの
+          <a
+            href={`https://github.com/${userName}/${env.IMAGE_REPOSITORY_NAME}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-block text-blue-600 hover:text-blue-800 underline"
+          >
+            GitHub レポジトリ
+          </a>
+          にアップロードされます（アップロードされるまでアクセスできません）。画像は一般公開されます。
+        </p>
       </div>
 
       <div class="space-y-4">
