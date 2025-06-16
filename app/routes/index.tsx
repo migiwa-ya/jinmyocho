@@ -13,7 +13,7 @@ export default createRoute((c) => {
         <section class="max-w-4xl m-auto text-gray-700 p-4 leading-8 space-y-2">
           <p>
             {name}
-            は、日本各地の神社に関する情報を整理し、誰でも自由に学び、探し、活用できることを目指して作られた
+            は、日本各地の神社に関する情報を整理し、誰でも自由に学び、探し、活用できることを目指した
             <strong>神社情報アーカイブ</strong>です。
           </p>
           <p>
