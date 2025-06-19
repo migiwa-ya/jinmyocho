@@ -12,7 +12,17 @@ type PrivateEnv = {
 
 declare module "hono" {
   interface Env {
-    Variables: {};
+    Variables: {
+      title: string;
+      "og:title": string;
+      "og:site_name": string;
+      "og:type": string;
+      "og:url": string;
+      "og:description": string;
+      "og:image": string;
+      "twitter:card": string;
+      "twitter:image": string;
+    };
     Bindings: PublicEnv & PrivateEnv;
   }
 }

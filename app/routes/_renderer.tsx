@@ -3,7 +3,7 @@ import { Link, Script } from "honox/server";
 import SearchBox from "../islands/searchBox";
 
 const ogImage = "https://jinmyocho.com/web-app-manifest-192x192.png";
-const title = "神名帳 (β版)";
+const title = "神名帳";
 
 export default jsxRenderer(({ children }, c) => {
   return (

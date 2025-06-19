@@ -40,22 +40,18 @@ export default createRoute(async (c) => {
       ? shrine.画像[0]
       : "/favicon-96x96.png";
 
+  c.set("title", `${shrine.名称}（${shrine.都道府県 + shrine.区域}） - 神名帳`);
+  c.set("og:title", shrine.名称);
+  c.set("og:site_name", "神名帳");
+  c.set("og:type", "website");
+  c.set("og:url", c.req.url);
+  c.set("og:description", shrine.住所 ?? shrine.別名 ?? shrine.名称);
+  c.set("og:image", ogImageUrl);
+  c.set("twitter:card", "summary_large_image");
+  c.set("twitter:image", ogImageUrl);
+
   const response = await c.render(
     <div>
-      <title>神社詳細</title>
-      <meta property="og:title" content={shrine.名称} />
-      <meta property="og:site_name" content="神名帳 (β版)" />
-      <meta property="og:type" content="website" />
-      <meta property="og:url" content={c.req.url} />
-      <meta
-        property="og:description"
-        content={
-          shrine.住所 ?? shrine.別名 ?? shrine.名称
-        }
-      />
-      <meta property="og:image" content={ogImageUrl} />
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:image" content={ogImageUrl} />
       <ShrineDetail
         slug={slug}
         initialShrine={shrine}
