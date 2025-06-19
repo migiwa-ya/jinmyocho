@@ -21,4 +21,8 @@ declare global {
   interface Window {
     __ENV__: PublicEnv;
   }
+
+  interface CacheStorage {
+    default: Cache;
+  }
 }

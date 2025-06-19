@@ -1,11 +1,8 @@
 import { useEffect, useState } from "hono/jsx";
-import { loadStaticQL } from "../staticql/client";
 import { encodeGeohash } from "../utils/geohash";
-import { ShrinesRecord } from "../staticql/staticql-types";
-import { parseMarkdown, stripFrontmatter } from "../utils/parse";
-import { formatDate, getCalculatedDateJa } from "../utils/festival";
-import { buildShrineIssueUrl } from "../utils/github";
 import { sanitizeHtml } from "../utils/sanitaize";
+import { ShrinesRecord } from "../staticql/staticql-types";
+import { formatDate, getCalculatedDateJa } from "../utils/festival";
 interface ImageMeta {
   userName: string;
   ccLicense: string;
@@ -13,11 +10,25 @@ interface ImageMeta {
 }
 type 画像 = NonNullable<ShrinesRecord["画像"]>[number];
 
-export default function ShrineDetail({ slug }: { slug: string }) {
-  const [shrine, setShrine] = useState<ShrinesRecord | null>(null);
-  const [issueUrl, setIssueUrl] = useState<string | null>();
-  const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(true);
+export default function ShrineDetail({
+  slug,
+  initialShrine,
+  initialContent,
+  initialIssueUrl,
+}: {
+  slug: string;
+  initialShrine: ShrinesRecord | null;
+  initialContent: string;
+  initialIssueUrl: string | null;
+}) {
+  const [shrine, setShrine] = useState<ShrinesRecord | null>(
+    initialShrine
+  );
+  const [issueUrl, setIssueUrl] = useState<string | null>(
+    initialIssueUrl
+  );
+  const [content] = useState(initialContent);
+  const [loading] = useState(false);
   const [metaDataMap, setMetaDataMap] = useState<
     Record<string, ImageMeta | null>
   >({});
@@ -32,37 +43,6 @@ export default function ShrineDetail({ slug }: { slug: string }) {
     setSelectedImage(null);
   };
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      let result: ShrinesRecord | null;
-
-      try {
-        const staticql = await loadStaticQL();
-        result = await staticql.from<ShrinesRecord>("shrines").find(slug);
-      } catch {
-        result = null;
-      }
-
-      setShrine(result ?? null);
-
-      if (result) {
-        setContent(sanitizeHtml(parseMarkdown(stripFrontmatter(result.raw))));
-
-        setIssueUrl(
-          buildShrineIssueUrl(result, {
-            owner: "migiwa-ya",
-            repo: "dataset-shrines",
-            assignees: ["reviewer"],
-          })
-        );
-      } else {
-        setContent("");
-      }
-
-      setLoading(false);
-    })();
-  }, [slug]);
 
   useEffect(() => {
     if (!shrine?.画像) {
@@ -135,6 +115,8 @@ export default function ShrineDetail({ slug }: { slug: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shrine]);
 
+  // ブラウザ環境でのみ sanitizeHtml を適用
+  const safeHtml = typeof document !== "undefined" ? sanitizeHtml(content) : content;
   return (
     <div class="max-w-4xl mx-auto mt-8 p-6 bg-white text-gray-700">
       {loading ? (
@@ -173,6 +155,16 @@ export default function ShrineDetail({ slug }: { slug: string }) {
               )}
             </div>
           </header>
+
+          {shrine?.画像 && shrine.画像.length > 0 && (
+            <div class="mb-8">
+              <img
+                src={shrine.画像[0]}
+                alt={shrine.名称}
+                class="w-full h-64 object-cover rounded-lg"
+              />
+            </div>
+          )}
 
           <section class="mb-8 space-y-3">
             <h2 class="text-xl font-bold mt-6 mb-3">所在地情報</h2>
@@ -314,7 +306,7 @@ export default function ShrineDetail({ slug }: { slug: string }) {
           )}
 
           <article class="markdown-content mt-8">
-            <div dangerouslySetInnerHTML={{ __html: content }} />
+            <div dangerouslySetInnerHTML={{ __html: safeHtml }} />
           </article>
         </>
       )}
