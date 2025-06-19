@@ -21,12 +21,8 @@ export default function ShrineDetail({
   initialContent: string;
   initialIssueUrl: string | null;
 }) {
-  const [shrine, setShrine] = useState<ShrinesRecord | null>(
-    initialShrine
-  );
-  const [issueUrl, setIssueUrl] = useState<string | null>(
-    initialIssueUrl
-  );
+  const [shrine, setShrine] = useState<ShrinesRecord | null>(initialShrine);
+  const [issueUrl, setIssueUrl] = useState<string | null>(initialIssueUrl);
   const [content] = useState(initialContent);
   const [loading] = useState(false);
   const [metaDataMap, setMetaDataMap] = useState<
@@ -42,7 +38,6 @@ export default function ShrineDetail({
   const closeModal = () => {
     setSelectedImage(null);
   };
-
 
   useEffect(() => {
     if (!shrine?.画像) {
@@ -116,7 +111,8 @@ export default function ShrineDetail({
   }, [shrine]);
 
   // ブラウザ環境でのみ sanitizeHtml を適用
-  const safeHtml = typeof document !== "undefined" ? sanitizeHtml(content) : content;
+  const safeHtml =
+    typeof document !== "undefined" ? sanitizeHtml(content) : content;
   return (
     <div class="max-w-4xl mx-auto mt-8 p-6 bg-white text-gray-700">
       {loading ? (
@@ -220,6 +216,7 @@ export default function ShrineDetail({
                     {getCalculatedDateJa(festival)
                       .map((date) => formatDate(date))
                       .join("~")}
+                    {festival.備考 ? `(${festival.備考})` : ""}
                   </li>
                 ))}
               </ul>
