@@ -210,9 +210,7 @@ export default createRoute((c) => {
 
         <h2 class="mt-10 text-2xl font-semibold">ご協力のお願い</h2>
         <p class="mt-4">
-          未来の研究者・学習者に向けた「知の共有地」を一緒に育てていきましょう。SNS
-          でのシェアや、リポジトリ公開後の Star & Issue
-          で応援していただけると幸いです。寄付や助成のご提案も歓迎しております！
+          SNS でのシェアや、リポジトリ公開後の Star & Issue で応援していただけると幸いです。寄付や助成のご提案も歓迎しております！
         </p>
 
         <p class="mt-4">
