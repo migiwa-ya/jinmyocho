@@ -75,14 +75,25 @@ export const POST = createRoute(async (c) => {
   // userName: ここでは GitHub ユーザー名を利用
   const userName = username;
 
+  // shrineSlug は任意
+  const shrineSlugField = form.get("shrineSlug");
+  const shrineSlug =
+    typeof shrineSlugField === "string" && shrineSlugField.trim() !== ""
+      ? shrineSlugField.trim()
+      : undefined;
+
   // JSON オブジェクトを文字列化
   const metaObj: {
     userName: string;
     ccLicense: string;
     description?: string;
+    shrineSlug?: string;
   } = { userName, ccLicense };
   if (description !== undefined) {
     metaObj.description = description;
+  }
+  if (shrineSlug !== undefined) {
+    metaObj.shrineSlug = shrineSlug;
   }
   const jsonString = JSON.stringify(metaObj, null, 2);
 

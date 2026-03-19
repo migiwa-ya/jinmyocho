@@ -706,6 +706,100 @@ export function buildShrineIssueUrl(
   return `${base}?${qs.toString()}`;
 }
 
+/**
+ * GitHub リポジトリ上のメタデータ JSON を取得する
+ */
+export async function fetchMetaJson(
+  token: string,
+  username: string,
+  repoName: string,
+  metaFilename: string,
+  branch: string = "gh-pages"
+): Promise<{ content: Record<string, unknown>; sha: string }> {
+  const path = `images/${metaFilename}`;
+  const apiUrl = `https://api.github.com/repos/${encodeURIComponent(
+    username
+  )}/${encodeURIComponent(repoName)}/contents/${encodeURIComponent(
+    path
+  )}?ref=${encodeURIComponent(branch)}`;
+
+  const res = await fetch(apiUrl, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github.v3+json",
+      "User-Agent": "jinmyocho.com",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`メタデータ取得に失敗しました: status=${res.status}`);
+  }
+
+  const data: { content: string; sha: string; encoding: string } =
+    await res.json();
+
+  // GitHub API は content を base64 で返す
+  const decoded = atob(data.content.replace(/\n/g, ""));
+  const content = JSON.parse(decoded);
+
+  return { content, sha: data.sha };
+}
+
+/**
+ * GitHub リポジトリ上のメタデータ JSON を更新する
+ */
+export async function updateMetaJson(
+  token: string,
+  username: string,
+  repoName: string,
+  metaFilename: string,
+  updatedContent: Record<string, unknown>,
+  sha: string,
+  branch: string = "gh-pages"
+): Promise<void> {
+  const path = `images/${metaFilename}`;
+  const apiUrl = `https://api.github.com/repos/${encodeURIComponent(
+    username
+  )}/${encodeURIComponent(repoName)}/contents/${encodeURIComponent(path)}`;
+
+  const jsonString = JSON.stringify(updatedContent, null, 2);
+  // UTF-8 → base64
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(jsonString);
+  let binaryStr = "";
+  bytes.forEach((b) => (binaryStr += String.fromCharCode(b)));
+  const base64Content = btoa(binaryStr);
+
+  const res = await fetch(apiUrl, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github.v3+json",
+      "Content-Type": "application/json",
+      "User-Agent": "jinmyocho.com",
+    },
+    body: JSON.stringify({
+      message: `Update metadata: ${metaFilename}`,
+      content: base64Content,
+      sha,
+      branch,
+      committer: {
+        name: "File Uploader",
+        email: "uploader@example.com",
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(
+      `メタデータ更新に失敗しました: status=${res.status}, body=${JSON.stringify(
+        errBody
+      )}`
+    );
+  }
+}
+
 export function convertCdnUrlToGitHubUrl(
   cdnUrl: string,
   branch = "gh-pages"

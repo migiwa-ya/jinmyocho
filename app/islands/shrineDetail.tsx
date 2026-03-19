@@ -149,6 +149,12 @@ export default function ShrineDetail({
                   修正リクエスト（GitHub Issue）
                 </a>
               )}
+              <a
+                class="inline-block mt-2 text-blue-600 hover:text-blue-800 underline"
+                href={`/dashboard/images/upload?shrine=${encodeURIComponent(slug)}&name=${encodeURIComponent(shrine.名称)}`}
+              >
+                写真を投稿
+              </a>
             </div>
           </header>
 

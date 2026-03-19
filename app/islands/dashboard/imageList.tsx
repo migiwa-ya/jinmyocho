@@ -1,12 +1,32 @@
-import { useEffect, useState } from "hono/jsx";
+import { useEffect, useRef, useState } from "hono/jsx";
 import { ListResult } from "../../routes/api/images/list";
 import { convertCdnUrlToGitHubUrl, ImageResource } from "../../utils/github";
 import { NameResult } from "../../routes/api/users/name";
+import { MetaUpdateResult } from "../../routes/api/images/meta";
+import { loadStaticQL } from "../../staticql/client";
+import {
+  ShrinesCustomIndexKeys,
+  ShrinesRecord,
+} from "../../staticql/staticql-types";
+import { ngram } from "../../utils/ngram";
 
 interface ImageMeta {
   userName: string;
   ccLicense: string;
   description?: string;
+  shrineSlug?: string;
+}
+
+/** metaUrl（GitHub Pages URL）からファイル名を抽出する */
+function metaFilenameFromUrl(metaUrl: string): string | null {
+  try {
+    const url = new URL(metaUrl);
+    const segments = url.pathname.split("/").filter(Boolean);
+    // 例: /jinmyocho-data/images/abc123.json → abc123.json
+    return segments[segments.length - 1] ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export default function ImageList() {
@@ -22,6 +42,15 @@ export default function ImageList() {
   >({});
 
   const [userName, setUserName] = useState("");
+
+  // 神社編集用 state
+  const [editingShrine, setEditingShrine] = useState(false);
+  const [shrineQuery, setShrineQuery] = useState("");
+  const [shrineResults, setShrineResults] = useState<ShrinesRecord[]>([]);
+  const [shrineSearching, setShrineSearching] = useState(false);
+  const [showShrineDropdown, setShowShrineDropdown] = useState(false);
+  const [shrineUpdating, setShrineUpdating] = useState(false);
+  const shrineInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // images が変わるたびにフェッチ
@@ -52,6 +81,9 @@ export default function ImageList() {
               };
               if (typeof imageMeta.description === "string") {
                 meta.description = imageMeta.description;
+              }
+              if (typeof imageMeta.shrineSlug === "string") {
+                meta.shrineSlug = imageMeta.shrineSlug;
               }
               setMetaDataMap((prev) => ({ ...prev, [metaUrl]: meta }));
             } else {
@@ -87,6 +119,43 @@ export default function ImageList() {
     })();
   }, []);
 
+  // 神社検索
+  useEffect(() => {
+    if (!shrineQuery.trim()) {
+      setShrineResults([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setShrineSearching(true);
+      try {
+        const keys = ngram(shrineQuery, 2);
+        const staticql = await loadStaticQL();
+        let query = staticql
+          .from<ShrinesRecord, ShrinesCustomIndexKeys>("shrines")
+          .pageSize(10);
+
+        if (keys.length === 1) {
+          query = query.where("nameBigram", "startsWith", keys[0]);
+        } else {
+          for (const key of keys) {
+            query = query.where("nameBigram", "eq", key);
+          }
+        }
+
+        const res = await query.exec();
+        setShrineResults(res.data);
+        setShowShrineDropdown(true);
+      } catch (error) {
+        console.error("神社検索に失敗しました:", error);
+      } finally {
+        setShrineSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [shrineQuery]);
+
   if (!env) {
     return (
       <div class="flex items-center justify-center min-h-64">
@@ -117,11 +186,17 @@ export default function ImageList() {
   const openModal = (image: ImageResource) => {
     setSelectedImage(image);
     setCopied(false);
+    setEditingShrine(false);
+    setShrineQuery("");
+    setShrineResults([]);
   };
 
   const closeModal = () => {
     setSelectedImage(null);
     setCopied(false);
+    setEditingShrine(false);
+    setShrineQuery("");
+    setShrineResults([]);
   };
 
   const copyToClipboard = async () => {
@@ -134,6 +209,61 @@ export default function ImageList() {
         console.error("クリップボードへのコピーに失敗しました:", error);
       }
     }
+  };
+
+  /** shrineSlug を API 経由で更新する */
+  const updateShrineSlug = async (
+    metaUrl: string,
+    shrineSlug: string | null
+  ) => {
+    const metaFilename = metaFilenameFromUrl(metaUrl);
+    if (!metaFilename) return;
+
+    setShrineUpdating(true);
+    try {
+      const response = await fetch("/api/images/meta", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metaFilename, shrineSlug }),
+      });
+
+      const result = (await response.json()) as MetaUpdateResult;
+      if ("error" in result) {
+        throw new Error(result.error);
+      }
+
+      // ローカルの metaDataMap を更新
+      setMetaDataMap((prev) => {
+        const existing = prev[metaUrl];
+        if (!existing) return prev;
+        const updated = { ...existing };
+        if (shrineSlug) {
+          updated.shrineSlug = shrineSlug;
+        } else {
+          delete updated.shrineSlug;
+        }
+        return { ...prev, [metaUrl]: updated };
+      });
+
+      setEditingShrine(false);
+      setShrineQuery("");
+      setShrineResults([]);
+    } catch (error) {
+      console.error("神社情報の更新に失敗しました:", error);
+      alert("神社情報の更新に失敗しました");
+    } finally {
+      setShrineUpdating(false);
+    }
+  };
+
+  const handleSelectShrine = (shrine: ShrinesRecord) => {
+    if (!selectedImage) return;
+    updateShrineSlug(selectedImage.metaUrl, shrine.slug);
+  };
+
+  const handleClearShrine = () => {
+    if (!selectedImage) return;
+    updateShrineSlug(selectedImage.metaUrl, null);
   };
 
   if (loading) {
@@ -152,6 +282,10 @@ export default function ImageList() {
       </div>
     );
   }
+
+  const currentMeta = selectedImage
+    ? metaDataMap[selectedImage.metaUrl]
+    : null;
 
   return (
     <>
@@ -240,16 +374,123 @@ export default function ImageList() {
               />
 
               <div className="absolute bottom-0 left-0 w-full bg-black bg-opacity-50 text-white text-xs px-1 py-0.5 text-right">
-                [ by {metaDataMap[selectedImage.metaUrl]?.userName},{" "}
-                {metaDataMap[selectedImage.metaUrl]?.ccLicense} ]
+                [ by {currentMeta?.userName},{" "}
+                {currentMeta?.ccLicense} ]
               </div>
             </div>
 
             {/* URL コピー部分 */}
-            <div class="p-4 bg-gray-50 border-t">
-              {metaDataMap[selectedImage.metaUrl]?.description && (
-                <p className="pb-2 text-sm text-gray-700 line-clamp-2">
-                  {metaDataMap[selectedImage.metaUrl]?.description}
+            <div class="p-4 bg-gray-50 border-t space-y-2">
+              {/* 神社情報（表示・編集） */}
+              <div class="flex items-center gap-2 text-sm">
+                <span class="text-gray-500 shrink-0">神社:</span>
+                {shrineUpdating ? (
+                  <div class="flex items-center gap-1 text-gray-500">
+                    <div class="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-500"></div>
+                    <span>更新中...</span>
+                  </div>
+                ) : editingShrine ? (
+                  <div class="relative flex-1">
+                    <input
+                      ref={shrineInputRef}
+                      type="text"
+                      value={shrineQuery}
+                      onInput={(e: any) => setShrineQuery(e.target.value)}
+                      onFocus={() => {
+                        if (shrineResults.length > 0)
+                          setShowShrineDropdown(true);
+                      }}
+                      onBlur={() => {
+                        setTimeout(() => setShowShrineDropdown(false), 200);
+                      }}
+                      placeholder="神社名で検索..."
+                      class="w-full px-2 py-1 bg-white border border-gray-300 rounded text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      autoFocus
+                    />
+                    {shrineSearching && (
+                      <div class="absolute right-2 top-1/2 -translate-y-1/2">
+                        <div class="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-500"></div>
+                      </div>
+                    )}
+
+                    {showShrineDropdown && shrineResults.length > 0 && (
+                      <ul class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-auto">
+                        {shrineResults.map((shrine) => (
+                          <li
+                            key={shrine.slug}
+                            onMouseDown={() => handleSelectShrine(shrine)}
+                            class="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm border-b border-gray-100 last:border-b-0"
+                          >
+                            <span class="font-medium text-gray-800">
+                              {shrine.名称}
+                            </span>
+                            <span class="ml-2 text-gray-500 text-xs">
+                              {shrine.都道府県}
+                              {shrine.区域}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {showShrineDropdown &&
+                      !shrineSearching &&
+                      shrineQuery.trim() !== "" &&
+                      shrineResults.length === 0 && (
+                        <div class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg px-3 py-2 text-sm text-gray-500">
+                          該当する神社が見つかりませんでした
+                        </div>
+                      )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingShrine(false);
+                        setShrineQuery("");
+                        setShrineResults([]);
+                      }}
+                      class="absolute -right-7 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ) : currentMeta?.shrineSlug ? (
+                  <div class="flex items-center gap-2">
+                    <a
+                      href={`/s/${currentMeta.shrineSlug}`}
+                      class="text-blue-600 hover:text-blue-800 underline"
+                    >
+                      {currentMeta.shrineSlug}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setEditingShrine(true)}
+                      class="text-gray-400 hover:text-blue-600 text-xs"
+                    >
+                      変更
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleClearShrine}
+                      class="text-gray-400 hover:text-red-600 text-xs"
+                    >
+                      解除
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setEditingShrine(true)}
+                    class="text-blue-600 hover:text-blue-800 text-xs underline"
+                  >
+                    神社を設定
+                  </button>
+                )}
+              </div>
+
+              {currentMeta?.description && (
+                <p className="text-sm text-gray-700 line-clamp-2">
+                  {currentMeta.description}
                 </p>
               )}
               <div class="flex items-center space-x-2">
