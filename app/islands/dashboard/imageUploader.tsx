@@ -3,17 +3,7 @@ import { UploadResult } from "../../routes/api/images/upload";
 import { compressImageToJpeg } from "../../utils/file";
 import { CCLicenseSelector } from "./CCLicenseSelector";
 import { NameResult } from "../../routes/api/users/name";
-import { loadStaticQL } from "../../staticql/client";
-import {
-  ShrinesCustomIndexKeys,
-  ShrinesRecord,
-} from "../../staticql/staticql-types";
-import { ngram } from "../../utils/ngram";
-
-type SelectedShrine = {
-  slug: string;
-  name: string;
-};
+import { ShrinePicker, SelectedShrine } from "./shrinePicker";
 
 export default function ImageUploader() {
   const [selectedFile, setSelectedFile] = useState<Blob | null>();
@@ -34,11 +24,6 @@ export default function ImageUploader() {
   const [selectedShrine, setSelectedShrine] = useState<SelectedShrine | null>(
     null
   );
-  const [shrineQuery, setShrineQuery] = useState("");
-  const [shrineResults, setShrineResults] = useState<ShrinesRecord[]>([]);
-  const [shrineSearching, setShrineSearching] = useState(false);
-  const [showShrineDropdown, setShowShrineDropdown] = useState(false);
-  const shrineInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.__ENV__) {
@@ -72,43 +57,6 @@ export default function ImageUploader() {
       }
     })();
   }, []);
-
-  // 神社検索
-  useEffect(() => {
-    if (!shrineQuery.trim()) {
-      setShrineResults([]);
-      return;
-    }
-
-    const timer = setTimeout(async () => {
-      setShrineSearching(true);
-      try {
-        const keys = ngram(shrineQuery, 2);
-        const staticql = await loadStaticQL();
-        let query = staticql
-          .from<ShrinesRecord, ShrinesCustomIndexKeys>("shrines")
-          .pageSize(10);
-
-        if (keys.length === 1) {
-          query = query.where("nameBigram", "startsWith", keys[0]);
-        } else {
-          for (const key of keys) {
-            query = query.where("nameBigram", "eq", key);
-          }
-        }
-
-        const res = await query.exec();
-        setShrineResults(res.data);
-        setShowShrineDropdown(true);
-      } catch (error) {
-        console.error("神社検索に失敗しました:", error);
-      } finally {
-        setShrineSearching(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [shrineQuery]);
 
   if (!env) {
     return (
@@ -221,19 +169,6 @@ export default function ImageUploader() {
     }
   };
 
-  const handleSelectShrine = (shrine: ShrinesRecord) => {
-    setSelectedShrine({ slug: shrine.slug, name: shrine.名称 });
-    setShrineQuery("");
-    setShrineResults([]);
-    setShowShrineDropdown(false);
-  };
-
-  const handleClearShrine = () => {
-    setSelectedShrine(null);
-    setShrineQuery("");
-    setShrineResults([]);
-  };
-
   return (
     <div class="max-w-lg mx-auto p-6 mt-4 bg-white">
       <div class="mb-6">
@@ -260,76 +195,7 @@ export default function ImageUploader() {
           <label class="block text-sm font-medium text-gray-700 mb-1">
             神社
           </label>
-
-          {selectedShrine ? (
-            <div class="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-md">
-              <a
-                href={`/s/${selectedShrine.slug}`}
-                class="text-sm text-blue-700 hover:text-blue-900 underline flex-1"
-              >
-                {selectedShrine.name}
-              </a>
-              <button
-                type="button"
-                onClick={handleClearShrine}
-                class="text-gray-400 hover:text-gray-600 text-lg leading-none"
-              >
-                &times;
-              </button>
-            </div>
-          ) : (
-            <div class="relative">
-              <input
-                ref={shrineInputRef}
-                type="text"
-                value={shrineQuery}
-                onInput={(e: any) => setShrineQuery(e.target.value)}
-                onFocus={() => {
-                  if (shrineResults.length > 0) setShowShrineDropdown(true);
-                }}
-                onBlur={() => {
-                  // ドロップダウンのクリックが先に処理されるよう遅延
-                  setTimeout(() => setShowShrineDropdown(false), 200);
-                }}
-                placeholder="神社名で検索..."
-                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {shrineSearching && (
-                <div class="absolute right-3 top-1/2 -translate-y-1/2">
-                  <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                </div>
-              )}
-
-              {showShrineDropdown && shrineResults.length > 0 && (
-                <ul class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
-                  {shrineResults.map((shrine) => (
-                    <li
-                      key={shrine.slug}
-                      onMouseDown={() => handleSelectShrine(shrine)}
-                      class="px-3 py-2 hover:bg-blue-50 cursor-pointer text-sm border-b border-gray-100 last:border-b-0"
-                    >
-                      <span class="font-medium text-gray-800">
-                        {shrine.名称}
-                      </span>
-                      <span class="ml-2 text-gray-500 text-xs">
-                        {shrine.都道府県}
-                        {shrine.区域}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {showShrineDropdown &&
-                !shrineSearching &&
-                shrineQuery.trim() !== "" &&
-                shrineResults.length === 0 && (
-                  <div class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg px-3 py-2 text-sm text-gray-500">
-                    該当する神社が見つかりませんでした
-                  </div>
-                )}
-            </div>
-          )}
+          <ShrinePicker value={selectedShrine} onChange={setSelectedShrine} />
         </div>
 
         <div>
