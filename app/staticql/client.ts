@@ -15,7 +15,7 @@ async function loadStaticQL() {
   const factory = defineStaticQL(config as StaticQLConfig);
   staticql = factory({
     repository: new CachedRepository(
-      new FetchRepository(url),
+      new FetchRepository(url, { preferGzip: true }),
       new InMemoryCacheProvider()
     ),
   });
